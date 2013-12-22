@@ -14,11 +14,4 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>examplefuncsplayer</name>
-			<type>2</type>
-			<location>/Users/jmedrano/Documents/workspace/battlecode-2013/bin/examplefuncsplayer</location>
-		</link>
-	</linkedResources>
 </projectDescription>
