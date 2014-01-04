@@ -2,9 +2,9 @@
 <classpath>
 	<classpathentry kind="src" output="bin" path="teams"/>
 	<classpathentry kind="var" path="JRE_LIB" sourcepath="JRE_SRC"/>
-	<classpathentry kind="lib" path="/Users/jmedrano/Documents/workspace/battlecode-2013/lib/battlecode-client.jar"/>
-	<classpathentry kind="lib" path="/Users/jmedrano/Documents/workspace/battlecode-2013/lib/battlecode-player.jar"/>
-	<classpathentry kind="lib" path="/Users/jmedrano/Documents/workspace/battlecode-2013/lib/battlecode-server.jar"/>
-	<classpathentry kind="lib" path="/Users/jmedrano/Documents/workspace/battlecode-2013/lib/jogl.all.jar"/>
+	<classpathentry kind="lib" path="lib/battlecode-client.jar"/>
+	<classpathentry kind="lib" path="lib/battlecode-player.jar"/>
+	<classpathentry kind="lib" path="lib/battlecode-server.jar"/>
+	<classpathentry kind="lib" path="lib/jogl.all.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
