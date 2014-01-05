@@ -1,7 +1,8 @@
 package team000.robots;
 
-import team000.messaging.Intent;
+import team000.common.Constants;
 import team000.messaging.Message;
+import team000.messaging.MessageIntent;
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
@@ -22,7 +23,7 @@ public class HQRobot extends BaseRobot {
 		while (true) {
 			listenToBroadcasts();
 			if (isEnemyInRange()) {
-				enemyInRange(null);
+				enemyInSightAction(null);
 			}
 			spawnSoldier();
 			rc.yield();
@@ -32,43 +33,48 @@ public class HQRobot extends BaseRobot {
 	private void researchDefusion() {
 		while (!rc.hasUpgrade(Upgrade.DEFUSION)) {
 			try {
-				rc.researchUpgrade(Upgrade.DEFUSION);
+				if (rc.isActive() && !rc.hasUpgrade(Upgrade.DEFUSION)) {
+					rc.researchUpgrade(Upgrade.DEFUSION);
+				} 				
 			} catch (GameActionException e) {
-				e.printStackTrace();
+				printErrorMessage(e);
 			}
 		}
 	}
 
 	private void spawnSoldier() {
 		if (rc.isActive()) {
-			for (Direction direction : Direction.values()) {
-				if (canSpawn(direction)) {
-					try {
-						rc.spawn(direction);
-					} catch (GameActionException e) {
-						e.printStackTrace();
-					}
-					break;
-				}
-			}
+			Direction direction = calculateBestDirectionToSpawn();
+			setRobotIndicator(Constants.INDICATOR_GENERAL, "Spawning Solider at " + direction.toString());
+			spawnSoliderRobot(direction);
 		}
 	}
 
-	private boolean canSpawn(Direction direction) {
-		return !direction.equals(Direction.OMNI) && !direction.equals(Direction.NONE) && rc.canMove(direction)
-				&& !isMineLocatedAtMapLocation(rc.getLocation().add(direction));
+	private Direction calculateBestDirectionToSpawn() {
+		Direction direction = rc.getLocation().directionTo(rc.senseEnemyHQLocation());
+		while (!canMove(direction)) {
+			direction.rotateRight();
+		}
+		return direction;
+	}
+
+	private void spawnSoliderRobot(Direction direction) {
+		try {
+			rc.spawn(direction);
+		} catch (GameActionException e) {
+			printErrorMessage(e);
+		}
 	}
 
 	@Override
-	public void enemyInRange(RobotInfo robotInfo) {
+	public void enemyInSightAction(RobotInfo robotInfo) {
 		Message message = returnToBaseMessage();
 		broadcast(message);
 	}
 
 	private Message returnToBaseMessage() {
 		Message message = new Message();
-		message.setChannel(1337);
-		message.setIntent(Intent.RETURN_TO_BASE);
+		message.setMessageIntent(MessageIntent.RETURN_TO_BASE);
 		message.setMapLocation(getLocation());
 		return message;
 	}

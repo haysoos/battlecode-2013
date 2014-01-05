@@ -3,8 +3,10 @@ package team000.robots;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
+import team000.common.Constants;
 import team000.messaging.Message;
 import team000.pathing.PathingAlgorithm;
+import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
 import battlecode.common.Robot;
@@ -12,7 +14,7 @@ import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 
 public abstract class BaseRobot {
-
+	
 	protected RobotController rc;
 	private Queue<Message> priorityQueue;
 	private PathingAlgorithm pathingAlgorithm;
@@ -26,7 +28,10 @@ public abstract class BaseRobot {
 
 	public void broadcast(Message message) {
 		try {
-			rc.broadcast(message.getChannel(), message.encode());
+			rc.broadcast(Constants.BROADCAST_CHANNEL, message.encode());
+			if (Constants.VERBOSE) {
+				rc.setIndicatorString(Constants.INDICATOR_MESSAGE, message.toString());
+			}
 		} catch (GameActionException e) {
 			e.printStackTrace();
 		}
@@ -35,11 +40,11 @@ public abstract class BaseRobot {
 
 	public void listenToBroadcasts() {
 		try {
-			int encodedMessage = rc.readBroadcast(11);
+			int encodedMessage = rc.readBroadcast(Constants.BROADCAST_CHANNEL);
 			Message decodedMessage = Message.decode(encodedMessage);
 			priorityQueue.add(decodedMessage);
 		} catch (GameActionException e) {
-			e.printStackTrace();
+			printErrorMessage(e);
 		}
 	}
 
@@ -49,7 +54,7 @@ public abstract class BaseRobot {
 		}
 	}
 
-	abstract public void enemyInRange(RobotInfo robotInfo);
+	abstract public void enemyInSightAction(RobotInfo robotInfo);
 
 	public boolean isEnemyInRange() {
 		Robot[] robots = senseNearbyEnemyRobots();
@@ -62,7 +67,7 @@ public abstract class BaseRobot {
 				rc.attackSquare(robotInfo.location);
 			}
 		} catch (GameActionException e) {
-			e.printStackTrace();
+			printErrorMessage(e);
 		}
 	}
 
@@ -80,7 +85,7 @@ public abstract class BaseRobot {
 				}
 			}
 		} catch (GameActionException e) {
-			e.printStackTrace();
+			printErrorMessage(e);
 		}
 
 		return weakest;
@@ -104,5 +109,28 @@ public abstract class BaseRobot {
 
 	public RobotController getRobotController() {
 		return rc;
+	}
+	
+	public void setRobotIndicator(int index, String indicatorMessage) {
+		if (Constants.VERBOSE) {
+			rc.setIndicatorString(index, indicatorMessage);
+		}
+	}
+	
+	/**
+	 * This canMove location takes into consideration mines.  If a mine is there it will return false.
+	 * @param location
+	 * @return
+	 */
+	public boolean canMove(Direction direction) { 
+		return rc.canMove(direction) && !isMineLocatedAtMapLocation(rc.getLocation().add(direction));
+
+	}
+	
+	public void printErrorMessage(GameActionException e) {
+		setRobotIndicator(Constants.INDICATOR_GENERAL, e.getMessage());
+		if (Constants.VERBOSE) {
+			e.printStackTrace();
+		}
 	}
 }

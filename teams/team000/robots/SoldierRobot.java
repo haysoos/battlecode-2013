@@ -1,8 +1,8 @@
 package team000.robots;
 
+import team000.common.Constants;
 import team000.pathing.BugPathingAlgorithm;
 import battlecode.common.MapLocation;
-import battlecode.common.Robot;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 
@@ -22,27 +22,31 @@ public class SoldierRobot extends BaseRobot {
 			listenToBroadcasts();
 			if (isEnemyInRange()) {
 				RobotInfo weakestEnemy = getWeakestEnemyInRange(senseNearbyEnemyRobots());
-				enemyInRange(weakestEnemy);
+				enemyInSightAction(weakestEnemy);
 			}
 			moveTowardsTarget(target);
 			rc.yield();
 		}
-
 	}
 
 	@Override
-	public void enemyInRange(RobotInfo robotInfo) {
-		if (rc.isActive()) {
-			attackRobot(robotInfo);
-		}
-	}
+	public void enemyInSightAction(RobotInfo robotInfo) {
 
-	private boolean shouldAttackEnemy(Robot[] robots) {
-		if (robots.length > 2) {
-			return false;
+		MapLocation enemyLocation = robotInfo.location;
+		int distanceToEnemy = getRobotController().getLocation().distanceSquaredTo(enemyLocation);
+	
+		if(distanceToEnemy > Constants.MAXIMUM_DISTANCE_TO_ENGAGE_ENEMY){
+			return;
+		}
+		
+		if(distanceToEnemy < Constants.MINIMUM_ENEMY_VISIBLE_RANGE ){
+			
+			if(distanceToEnemy > Constants.STOP_MOVING_AND_ATTACK_DISTANCE){
+				moveTowardsTarget(enemyLocation);
+			}
 		} else {
-			return true;
+			moveTowardsTarget(enemyLocation);
 		}
-	}
 
+	}
 }

@@ -50,7 +50,7 @@ public class BugPathingAlgorithm implements PathingAlgorithm {
 						rc.yield();
 					}
 				} catch (GameActionException e) {
-					e.printStackTrace();
+					robot.printErrorMessage(e);
 				}
 			}
 
